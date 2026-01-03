@@ -1,27 +1,14 @@
 import { useState } from 'react'
 import ImageUpload from './ImageUpload'
 import WebcamCapture from './WebcamCapture'
-import { extractDocumentData } from '../utils/documentParser'
+import Card from './ui/Card'
 import './DocumentReader.css'
 
-function DocumentReader({ onDataExtracted, onProcessingChange, isProcessing }) {
+function DocumentReader({ onImageProcess, isProcessing }) {
   const [activeTab, setActiveTab] = useState('upload')
 
-  const handleImageProcess = async (imageSrc) => {
-    onProcessingChange(true)
-    try {
-      const data = await extractDocumentData(imageSrc)
-      onDataExtracted(data)
-    } catch (error) {
-      console.error('Erro ao processar imagem:', error)
-      alert('Erro ao processar a imagem. Tente novamente.')
-    } finally {
-      onProcessingChange(false)
-    }
-  }
-
   return (
-    <div className="document-reader">
+    <Card title="Escanear Documento" className="document-reader">
       <div className="tabs">
         <button
           className={`tab ${activeTab === 'upload' ? 'active' : ''}`}
@@ -41,12 +28,12 @@ function DocumentReader({ onDataExtracted, onProcessingChange, isProcessing }) {
 
       <div className="tab-content">
         {activeTab === 'upload' ? (
-          <ImageUpload onImageProcess={handleImageProcess} isProcessing={isProcessing} />
+          <ImageUpload onImageProcess={onImageProcess} isProcessing={isProcessing} />
         ) : (
-          <WebcamCapture onImageProcess={handleImageProcess} isProcessing={isProcessing} />
+          <WebcamCapture onImageProcess={onImageProcess} isProcessing={isProcessing} />
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

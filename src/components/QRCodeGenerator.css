@@ -1,0 +1,115 @@
+.qrcode-generator-container {
+  width: 100%;
+}
+
+.qrcode-generator {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.qrcode-content {
+  min-height: 400px;
+}
+
+.qrcode-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 32px;
+}
+
+.qrcode-wrapper {
+  padding: 24px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.qrcode-info {
+  text-align: center;
+}
+
+.qrcode-info h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.qrcode-type {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+}
+
+.qrcode-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.qrcode-options {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.option-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.option-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.person-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.person-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.person-option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.person-option-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.person-option-apt,
+.person-option-time {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.empty-message {
+  text-align: center;
+  padding: 32px;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .person-option {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

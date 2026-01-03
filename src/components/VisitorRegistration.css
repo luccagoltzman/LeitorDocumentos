@@ -1,0 +1,40 @@
+.visitor-registration {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.visitor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.blacklist-warning {
+  text-align: center;
+  padding: 24px;
+}
+
+.blacklist-warning p {
+  color: #ef4444;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
