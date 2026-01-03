@@ -1,0 +1,178 @@
+.webcam-capture {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.webcam-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 320px;
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px;
+  border: 1px solid var(--color-border);
+}
+
+.webcam-icon {
+  opacity: 0.4;
+  color: var(--color-text-tertiary);
+}
+
+.webcam-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.webcam-placeholder p {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.start-capture-btn {
+  padding: 14px 28px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.start-capture-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.start-capture-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.webcam-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.webcam-video {
+  width: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+.webcam-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.capture-btn,
+.cancel-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.capture-btn {
+  background: #10b981;
+  color: white;
+}
+
+.capture-btn:hover {
+  background: #059669;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.cancel-btn:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-text-tertiary);
+}
+
+.captured-image-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.captured-image {
+  width: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+.captured-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.retake-btn {
+  flex: 1;
+  padding: 14px 24px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retake-btn:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-text-tertiary);
+}
+
+.retake-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.process-btn {
+  flex: 2;
+  padding: 14px 24px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.process-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.process-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
