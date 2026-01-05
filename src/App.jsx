@@ -10,6 +10,7 @@ import PeopleSearch from './components/PeopleSearch'
 import VisitScheduling from './components/VisitScheduling'
 import QRCodeGenerator from './components/QRCodeGenerator'
 import Dashboard from './components/Dashboard'
+import VisitorsList from './components/VisitorsList'
 import { useDocumentScanner } from './hooks/useDocumentScanner'
 import './App.css'
 
@@ -60,6 +61,9 @@ function AppContent() {
     switch (currentView) {
       case 'dashboard':
         return <Dashboard />
+      
+      case 'visitors':
+        return <VisitorsList onSelectVisitor={handlePersonSelect} />
       
       case 'history':
         return <VisitHistory />

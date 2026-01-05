@@ -5,6 +5,7 @@ import './Layout.css'
 function Layout({ children, currentView, onViewChange }) {
   const views = [
     { id: 'scanner', label: 'Escanear Documento', icon: '📄' },
+    { id: 'visitors', label: 'Visitantes', icon: '👥' },
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'history', label: 'Histórico', icon: '📋' },
     { id: 'search', label: 'Buscar', icon: '🔍' },
