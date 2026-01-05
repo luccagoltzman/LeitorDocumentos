@@ -38,9 +38,6 @@ function VisitScheduling() {
       newErrors.nomeVisitante = 'Nome deve ter pelo menos 3 caracteres'
     }
 
-    if (!formData.apartamento) {
-      newErrors.apartamento = 'Informe o apartamento/unidade'
-    }
 
     if (!formData.dataAgendamento) {
       newErrors.dataAgendamento = 'Informe a data do agendamento'
@@ -132,14 +129,6 @@ function VisitScheduling() {
             />
           </div>
 
-          <Input
-            label="Apartamento/Unidade"
-            value={formData.apartamento}
-            onChange={(e) => handleChange('apartamento', e.target.value)}
-            error={errors.apartamento}
-            fullWidth
-            required
-          />
 
           <div className="form-row">
             <Input
@@ -201,7 +190,6 @@ function VisitScheduling() {
                   <div className="agendamento-info">
                     <h4>{agendamento.nomeVisitante}</h4>
                     <p className="agendamento-time">{formatDateTime(agendamento.dataHora)}</p>
-                    <p className="agendamento-apt">Apto: {agendamento.apartamento}</p>
                   </div>
                   <Badge variant="warning">{agendamento.tipo}</Badge>
                 </div>
@@ -223,7 +211,6 @@ function VisitScheduling() {
                   <div className="agendamento-info">
                     <h4>{agendamento.nomeVisitante}</h4>
                     <p className="agendamento-time">{formatDateTime(agendamento.dataHora)}</p>
-                    <p className="agendamento-apt">Apto: {agendamento.apartamento}</p>
                   </div>
                   <Badge variant="info">{agendamento.tipo}</Badge>
                 </div>

@@ -28,7 +28,6 @@ function QRCodeGenerator() {
       agendamentoId: agendamento.id,
       nome: agendamento.nomeVisitante,
       cpf: agendamento.cpfVisitante,
-      apartamento: agendamento.apartamento,
       dataHora: agendamento.dataHora,
       tipo: agendamento.tipo
     }
@@ -111,9 +110,6 @@ function QRCodeGenerator() {
                       <div key={visitante.id} className="person-option">
                         <div className="person-option-info">
                           <span className="person-option-name">{visitante.nome}</span>
-                          {visitante.apartamento && (
-                            <span className="person-option-apt">Apto: {visitante.apartamento}</span>
-                          )}
                         </div>
                         <Button
                           size="sm"
@@ -136,7 +132,6 @@ function QRCodeGenerator() {
                       <div key={agendamento.id} className="person-option">
                         <div className="person-option-info">
                           <span className="person-option-name">{agendamento.nomeVisitante}</span>
-                          <span className="person-option-apt">Apto: {agendamento.apartamento}</span>
                           <span className="person-option-time">{agendamento.dataHora}</span>
                         </div>
                         <Button

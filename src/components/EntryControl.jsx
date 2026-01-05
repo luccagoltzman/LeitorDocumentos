@@ -20,9 +20,7 @@ function EntryControl({ visitante, onComplete }) {
     try {
       const dados = {
         tipo: visitante.tipo || 'visita',
-        apartamento: visitante.apartamento || '',
-        foto: visitante.foto || null,
-        observacoes: visitante.observacoes || ''
+        foto: visitante.foto || null
       }
       
       const registro = registrarEntrada(visitante.id, dados)
@@ -59,16 +57,10 @@ function EntryControl({ visitante, onComplete }) {
           <span className="info-label">CPF:</span>
           <span className="info-value">{visitante.cpf}</span>
         </div>
-        {visitante.apartamento && (
+        {visitante.dataNascimento && (
           <div className="info-row">
-            <span className="info-label">Apartamento:</span>
-            <span className="info-value">{visitante.apartamento}</span>
-          </div>
-        )}
-        {visitante.tipo && (
-          <div className="info-row">
-            <span className="info-label">Tipo:</span>
-            <Badge variant="info">{visitante.tipo}</Badge>
+            <span className="info-label">Data de Nascimento:</span>
+            <span className="info-value">{visitante.dataNascimento}</span>
           </div>
         )}
         {registroAtivo && (
@@ -82,7 +74,7 @@ function EntryControl({ visitante, onComplete }) {
       <div className="entry-actions">
         {registroAtivo ? (
           <>
-            <Badge variant="success" size="lg">Dentro do Condomínio</Badge>
+            <Badge variant="success" size="lg">Dentro do Prédio</Badge>
             <Button
               variant="danger"
               size="lg"

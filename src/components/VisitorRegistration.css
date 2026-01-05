@@ -1,40 +1,67 @@
 .visitor-registration {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
-.visitor-form {
+.extracted-data-display {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.data-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-@media (max-width: 640px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
+.data-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.data-value {
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.existing-person-badge {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
 }
 
 .form-actions {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  margin-top: 8px;
 }
 
-.blacklist-warning {
+.blacklist-warning,
+.data-warning {
   text-align: center;
   padding: 24px;
 }
 
-.blacklist-warning p {
+.blacklist-warning p,
+.data-warning p {
   color: #ef4444;
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+}
+
+.data-warning .hint {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin-bottom: 24px;
 }

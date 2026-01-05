@@ -101,12 +101,6 @@ function PeopleSearch({ onSelectPerson }) {
                             <span className="detail-value">{person.dataNascimento}</span>
                           </div>
                         )}
-                        {person.apartamento && (
-                          <div className="person-detail">
-                            <span className="detail-label">Apartamento:</span>
-                            <span className="detail-value">{person.apartamento}</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                     {onSelectPerson && (

@@ -82,7 +82,7 @@ function Dashboard() {
                   <div key={visita.id} className="recent-item">
                     <div className="recent-item-info">
                       <h4>{visitante?.nome || 'Desconhecido'}</h4>
-                      <p>{formatDateOnly(visita.dataEntrada)} - {visita.apartamento}</p>
+                      <p>{formatDateOnly(visita.dataEntrada)}</p>
                     </div>
                     <Badge variant={visita.status === 'dentro' ? 'success' : 'default'}>
                       {visita.status === 'dentro' ? 'Dentro' : 'Fora'}

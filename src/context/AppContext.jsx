@@ -47,13 +47,11 @@ export const AppProvider = ({ children }) => {
       id: Date.now().toString(),
       visitanteId,
       tipo: dados.tipo || 'visita',
-      apartamento: dados.apartamento || '',
       moradorId: dados.moradorId || null,
       foto: dados.foto || null,
       dataEntrada: new Date().toISOString(),
       dataSaida: null,
-      status: 'dentro',
-      observacoes: dados.observacoes || ''
+      status: 'dentro'
     }
     setHistorico(prev => [registro, ...prev])
     

@@ -27,8 +27,7 @@ function VisitHistory() {
         const searchLower = filters.search.toLowerCase()
         const matchesName = visitante?.nome?.toLowerCase().includes(searchLower)
         const matchesCPF = visitante?.cpf?.includes(filters.search)
-        const matchesApt = registro.apartamento?.toLowerCase().includes(searchLower)
-        if (!matchesName && !matchesCPF && !matchesApt) return false
+        if (!matchesName && !matchesCPF) return false
       }
 
       // Filtro de status
@@ -78,7 +77,7 @@ function VisitHistory() {
     <Card title="Histórico de Visitas" className="visit-history">
       <div className="history-filters">
         <Input
-          placeholder="Buscar por nome, CPF ou apartamento..."
+          placeholder="Buscar por nome ou CPF..."
           value={filters.search}
           onChange={(e) => handleFilterChange('search', e.target.value)}
           fullWidth
@@ -161,12 +160,6 @@ function VisitHistory() {
               </div>
 
               <div className="history-item-details">
-                {registro.apartamento && (
-                  <div className="detail-item">
-                    <span className="detail-label">Apartamento:</span>
-                    <span className="detail-value">{registro.apartamento}</span>
-                  </div>
-                )}
                 {registro.dataSaida && (
                   <div className="detail-item">
                     <span className="detail-label">Saída:</span>

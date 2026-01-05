@@ -1,108 +1,96 @@
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import Card from './ui/Card'
-import Input from './ui/Input'
-import Select from './ui/Select'
 import Button from './ui/Button'
-import { formatCPF, cleanCPF } from '../utils/formatters'
+import Badge from './ui/Badge'
+import { formatCPF, cleanCPF, formatDate } from '../utils/formatters'
 import './VisitorRegistration.css'
 
 function VisitorRegistration({ extractedData, onComplete, onCancel }) {
   const { adicionarVisitante, buscarPorCPF, verificarBlacklist } = useApp()
-  const [formData, setFormData] = useState({
-    nome: '',
-    cpf: '',
-    dataNascimento: '',
-    telefone: '',
-    tipo: 'visita',
-    apartamento: '',
-    observacoes: ''
-  })
-  const [errors, setErrors] = useState({})
   const [existingPerson, setExistingPerson] = useState(null)
   const [isBlacklisted, setIsBlacklisted] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
-    if (extractedData) {
-      setFormData(prev => ({
-        ...prev,
-        nome: extractedData.nome || '',
-        cpf: extractedData.cpf || '',
-        dataNascimento: extractedData.dataNascimento || ''
-      }))
-
+    if (extractedData?.cpf) {
       // Verificar se pessoa já existe
-      if (extractedData.cpf) {
-        const pessoa = buscarPorCPF(extractedData.cpf)
-        if (pessoa) {
-          setExistingPerson(pessoa)
-        }
+      const pessoa = buscarPorCPF(extractedData.cpf)
+      if (pessoa) {
+        setExistingPerson(pessoa)
+      }
 
-        // Verificar blacklist
-        if (verificarBlacklist(extractedData.cpf)) {
-          setIsBlacklisted(true)
-        }
+      // Verificar blacklist
+      if (verificarBlacklist(extractedData.cpf)) {
+        setIsBlacklisted(true)
       }
     }
   }, [extractedData, buscarPorCPF, verificarBlacklist])
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }))
+  const validateData = () => {
+    if (!extractedData) return false
+    
+    const cpfLimpo = cleanCPF(extractedData.cpf || '')
+    if (!extractedData.nome || extractedData.nome.trim().length < 3) {
+      return false
     }
+    if (cpfLimpo.length !== 11) {
+      return false
+    }
+    return true
   }
 
-  const handleCPFChange = (value) => {
-    const cleaned = cleanCPF(value)
-    const formatted = formatCPF(cleaned)
-    handleChange('cpf', formatted)
-  }
-
-  const validate = () => {
-    const newErrors = {}
-
-    if (!formData.nome || formData.nome.trim().length < 3) {
-      newErrors.nome = 'Nome deve ter pelo menos 3 caracteres'
-    }
-
-    if (!formData.cpf || cleanCPF(formData.cpf).length !== 11) {
-      newErrors.cpf = 'CPF inválido'
+  const handleConfirm = async () => {
+    if (!validateData()) {
+      alert('Dados inválidos. Por favor, escaneie o documento novamente.')
+      return
     }
 
     if (isBlacklisted) {
-      newErrors.cpf = 'Esta pessoa está na lista de bloqueio'
+      return
     }
 
-    if (formData.tipo === 'visita' && !formData.apartamento) {
-      newErrors.apartamento = 'Informe o apartamento/unidade'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
+    setIsProcessing(true)
     
-    if (!validate()) return
+    try {
+      const visitante = {
+        nome: extractedData.nome,
+        cpf: cleanCPF(extractedData.cpf),
+        dataNascimento: extractedData.dataNascimento || null,
+        tipo: 'visita',
+        foto: extractedData?.foto || null // Foto facial capturada
+      }
 
-    const visitante = {
-      ...formData,
-      cpf: cleanCPF(formData.cpf),
-      foto: extractedData?.foto || null
+      const novoVisitante = adicionarVisitante(visitante)
+      onComplete?.(novoVisitante)
+    } catch (error) {
+      console.error('Erro ao cadastrar visitante:', error)
+      alert('Erro ao cadastrar visitante. Tente novamente.')
+    } finally {
+      setIsProcessing(false)
     }
-
-    adicionarVisitante(visitante)
-    onComplete?.(visitante)
   }
 
   if (isBlacklisted) {
     return (
       <Card title="Acesso Bloqueado" className="visitor-registration">
         <div className="blacklist-warning">
-          <p>Esta pessoa está na lista de bloqueio e não pode ter acesso ao condomínio.</p>
-          <Button onClick={onCancel} variant="secondary">
+          <p>Esta pessoa está na lista de bloqueio e não pode ter acesso ao prédio.</p>
+          <Button onClick={onCancel} variant="secondary" fullWidth>
+            Voltar
+          </Button>
+        </div>
+      </Card>
+    )
+  }
+
+  if (!extractedData || !validateData()) {
+    return (
+      <Card title="Dados Insuficientes" className="visitor-registration">
+        <div className="data-warning">
+          <p>Não foi possível extrair os dados necessários do documento.</p>
+          <p className="hint">Por favor, escaneie o documento novamente.</p>
+          <Button onClick={onCancel} variant="secondary" fullWidth>
             Voltar
           </Button>
         </div>
@@ -112,91 +100,53 @@ function VisitorRegistration({ extractedData, onComplete, onCancel }) {
 
   return (
     <Card 
-      title="Cadastrar Visitante" 
-      subtitle={existingPerson ? "Pessoa já cadastrada. Atualizando informações..." : "Preencha os dados para cadastrar"}
+      title="Confirmar Dados do Visitante" 
+      subtitle={existingPerson ? "Visitante já cadastrado. Confirmar entrada?" : "Confirme os dados extraídos do documento"}
       className="visitor-registration"
     >
-      <form onSubmit={handleSubmit} className="visitor-form">
-        <Input
-          label="Nome Completo"
-          value={formData.nome}
-          onChange={(e) => handleChange('nome', e.target.value)}
-          error={errors.nome}
-          fullWidth
-          required
-        />
-
-        <div className="form-row">
-          <Input
-            label="CPF"
-            value={formData.cpf}
-            onChange={(e) => handleCPFChange(e.target.value)}
-            error={errors.cpf}
-            placeholder="000.000.000-00"
-            maxLength={14}
-            fullWidth
-            required
-          />
-
-          <Input
-            label="Data de Nascimento"
-            value={formData.dataNascimento}
-            onChange={(e) => handleChange('dataNascimento', e.target.value)}
-            placeholder="DD/MM/AAAA"
-            fullWidth
-          />
+      <div className="extracted-data-display">
+        <div className="data-item">
+          <span className="data-label">Nome:</span>
+          <span className="data-value">{extractedData.nome || 'Não encontrado'}</span>
         </div>
 
-        <Input
-          label="Telefone"
-          value={formData.telefone}
-          onChange={(e) => handleChange('telefone', e.target.value)}
-          placeholder="(00) 00000-0000"
-          fullWidth
-        />
+        <div className="data-item">
+          <span className="data-label">CPF:</span>
+          <span className="data-value">{formatCPF(extractedData.cpf) || 'Não encontrado'}</span>
+        </div>
 
-        <Select
-          label="Tipo de Visita"
-          value={formData.tipo}
-          onChange={(e) => handleChange('tipo', e.target.value)}
-          options={[
-            { value: 'visita', label: 'Visita' },
-            { value: 'entrega', label: 'Entrega' },
-            { value: 'prestador', label: 'Prestador de Serviço' },
-            { value: 'outro', label: 'Outro' }
-          ]}
-          fullWidth
-        />
-
-        {formData.tipo === 'visita' && (
-          <Input
-            label="Apartamento/Unidade"
-            value={formData.apartamento}
-            onChange={(e) => handleChange('apartamento', e.target.value)}
-            error={errors.apartamento}
-            placeholder="Ex: 101, Bloco A"
-            fullWidth
-            required
-          />
+        {extractedData.dataNascimento && (
+          <div className="data-item">
+            <span className="data-label">Data de Nascimento:</span>
+            <span className="data-value">{formatDate(extractedData.dataNascimento)}</span>
+          </div>
         )}
 
-        <Input
-          label="Observações"
-          value={formData.observacoes}
-          onChange={(e) => handleChange('observacoes', e.target.value)}
-          placeholder="Informações adicionais (opcional)"
-          fullWidth
-        />
+        {existingPerson && (
+          <div className="existing-person-badge">
+            <Badge variant="info">Visitante já cadastrado anteriormente</Badge>
+          </div>
+        )}
+      </div>
 
-        <div className="form-actions">
-          <Button type="button" variant="secondary" onClick={onCancel}>
-            Cancelar
-          </Button>
-          <Button type="submit" variant="primary">
-            Cadastrar e Registrar Entrada
-          </Button>
-        </div>
-      </form>
+      <div className="form-actions">
+        <Button 
+          type="button" 
+          variant="secondary" 
+          onClick={onCancel}
+          disabled={isProcessing}
+        >
+          Cancelar
+        </Button>
+        <Button 
+          type="button" 
+          variant="primary"
+          onClick={handleConfirm}
+          disabled={isProcessing}
+        >
+          {isProcessing ? 'Cadastrando...' : 'Confirmar e Registrar Entrada'}
+        </Button>
+      </div>
     </Card>
   )
 }

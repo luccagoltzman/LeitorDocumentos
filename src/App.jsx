@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AppProvider } from './context/AppContext'
 import Layout from './components/Layout'
 import DocumentReader from './components/DocumentReader'
+import FaceCapture from './components/FaceCapture'
 import VisitorRegistration from './components/VisitorRegistration'
 import EntryControl from './components/EntryControl'
 import VisitHistory from './components/VisitHistory'
@@ -15,8 +16,9 @@ import './App.css'
 function AppContent() {
   const [currentView, setCurrentView] = useState('scanner')
   const [extractedData, setExtractedData] = useState(null)
+  const [facePhoto, setFacePhoto] = useState(null)
   const [selectedPerson, setSelectedPerson] = useState(null)
-  const [registrationStep, setRegistrationStep] = useState('scan') // scan, register, entry
+  const [registrationStep, setRegistrationStep] = useState('scan') // scan, face, register, entry
   
   const { scanDocument, isProcessing, extractedData: scannedData, reset } = useDocumentScanner()
 
@@ -24,10 +26,15 @@ function AppContent() {
     try {
       const data = await scanDocument(imageSrc)
       setExtractedData(data)
-      setRegistrationStep('register')
+      setRegistrationStep('face') // Ir para captura de foto
     } catch (error) {
       console.error('Erro ao escanear:', error)
     }
+  }
+
+  const handleFaceCapture = (photo) => {
+    setFacePhoto(photo)
+    setRegistrationStep('register')
   }
 
   const handleRegistrationComplete = (visitante) => {
@@ -37,6 +44,7 @@ function AppContent() {
 
   const handleEntryComplete = () => {
     setExtractedData(null)
+    setFacePhoto(null)
     setSelectedPerson(null)
     setRegistrationStep('scan')
     reset()
@@ -67,15 +75,27 @@ function AppContent() {
       
       case 'scanner':
       default:
-        if (registrationStep === 'register' && extractedData) {
+        if (registrationStep === 'face' && extractedData) {
           return (
-            <VisitorRegistration
-              extractedData={extractedData}
-              onComplete={handleRegistrationComplete}
+            <FaceCapture
+              onCapture={handleFaceCapture}
               onCancel={() => {
                 setRegistrationStep('scan')
                 setExtractedData(null)
                 reset()
+              }}
+            />
+          )
+        }
+        
+        if (registrationStep === 'register' && extractedData && facePhoto) {
+          return (
+            <VisitorRegistration
+              extractedData={{ ...extractedData, foto: facePhoto }}
+              onComplete={handleRegistrationComplete}
+              onCancel={() => {
+                setRegistrationStep('face')
+                setFacePhoto(null)
               }}
             />
           )
