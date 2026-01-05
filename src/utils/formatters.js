@@ -28,14 +28,43 @@ export const isValidCPFFormat = (cpf) => {
 
 /**
  * Formata data: 15072000 -> 15/07/2000
+ * Ou formata Date/ISO string para formato especificado
  */
-export const formatDate = (date) => {
+export const formatDate = (date, format = 'dd/MM/yyyy') => {
   if (!date) return ''
-  const cleaned = date.replace(/\D/g, '')
-  if (cleaned.length === 8) {
-    return cleaned.replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3')
+  
+  // Se for string de data simples (15072000)
+  if (typeof date === 'string' && /^\d+$/.test(date.replace(/\D/g, ''))) {
+    const cleaned = date.replace(/\D/g, '')
+    if (cleaned.length === 8) {
+      return cleaned.replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3')
+    }
+    return date
   }
-  return date
+  
+  // Se for Date object ou ISO string
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+    if (isNaN(dateObj.getTime())) {
+      return date
+    }
+    
+    if (format === 'YYYY-MM-DD') {
+      const year = dateObj.getFullYear()
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+      const day = String(dateObj.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    
+    // Formato padrão: dd/MM/yyyy
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(dateObj)
+  } catch (error) {
+    return date
+  }
 }
 
 /**

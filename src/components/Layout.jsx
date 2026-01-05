@@ -2,9 +2,10 @@ import { useState } from 'react'
 import Button from './ui/Button'
 import './Layout.css'
 
-function Layout({ children, currentView, onViewChange }) {
+function Layout({ children, currentView, onViewChange, onLogout }) {
   const views = [
     { id: 'scanner', label: 'Escanear Documento', icon: '📄' },
+    { id: 'faceRecognition', label: 'Reconhecimento Facial', icon: '👤' },
     { id: 'visitors', label: 'Visitantes', icon: '👥' },
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'history', label: 'Histórico', icon: '📋' },
@@ -30,6 +31,13 @@ function Layout({ children, currentView, onViewChange }) {
               <span className="nav-label">{view.label}</span>
             </button>
           ))}
+          <button 
+            className="nav-item logout-button"
+            onClick={onLogout}
+          >
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Sair</span>
+          </button>
         </div>
       </nav>
       <main className="main-content">

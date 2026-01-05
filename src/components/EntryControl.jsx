@@ -16,17 +16,49 @@ function EntryControl({ visitante, onComplete }) {
   )
 
   const handleEntrada = async () => {
+    if (!visitante?.id) {
+      alert('Erro: Visitante não identificado. Por favor, tente novamente.')
+      return
+    }
+
     setIsProcessing(true)
     try {
       const dados = {
-        tipo: visitante.tipo || 'visita',
-        foto: visitante.foto || null
+        sala: visitante.sala || null,
+        // Não enviar foto se for URL (já está salva no servidor)
+        foto: visitante.foto && !visitante.foto.startsWith('http') && !visitante.foto.startsWith('/') ? visitante.foto : null
       }
       
-      const registro = registrarEntrada(visitante.id, dados)
+      console.log('Dados sendo enviados:', { visitanteId: visitante.id, dados })
+      
+      const registro = await registrarEntrada(visitante.id, dados)
       onComplete?.(registro)
     } catch (error) {
       console.error('Erro ao registrar entrada:', error)
+      
+      // Mostrar mensagem de erro mais detalhada
+      let errorMessage = 'Erro ao registrar entrada. Tente novamente.'
+      
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.data?.error?.message) {
+        errorMessage = error.data.error.message
+      } else if (error.data?.message) {
+        errorMessage = error.data.message
+      }
+      
+      // Mensagens específicas para códigos de erro comuns
+      if (error.code === 'UNAUTHORIZED') {
+        errorMessage = 'Sessão expirada. Por favor, faça login novamente.'
+      } else if (error.status === 400) {
+        errorMessage = 'Dados inválidos. Verifique se o visitante está cadastrado e tente novamente.'
+      } else if (error.status === 404) {
+        errorMessage = 'Visitante não encontrado. Por favor, cadastre o visitante primeiro.'
+      } else if (error.status === 500) {
+        errorMessage = 'Erro no servidor. Tente novamente. Se o problema persistir, entre em contato com o suporte.'
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsProcessing(false)
     }
@@ -37,10 +69,11 @@ function EntryControl({ visitante, onComplete }) {
     
     setIsProcessing(true)
     try {
-      registrarSaida(registroAtivo.id)
+      await registrarSaida(registroAtivo.id)
       onComplete?.({ tipo: 'saida' })
     } catch (error) {
       console.error('Erro ao registrar saída:', error)
+      alert('Erro ao registrar saída. Tente novamente.')
     } finally {
       setIsProcessing(false)
     }

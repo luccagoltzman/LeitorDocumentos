@@ -160,6 +160,12 @@ function VisitHistory() {
               </div>
 
               <div className="history-item-details">
+                {registro.sala && (
+                  <div className="detail-item">
+                    <span className="detail-label">Sala/Apartamento:</span>
+                    <span className="detail-value">{registro.sala}</span>
+                  </div>
+                )}
                 {registro.dataSaida && (
                   <div className="detail-item">
                     <span className="detail-label">Saída:</span>

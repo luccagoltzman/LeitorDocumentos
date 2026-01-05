@@ -5,11 +5,13 @@ import Input from './ui/Input'
 import Select from './ui/Select'
 import Button from './ui/Button'
 import Badge from './ui/Badge'
+import VisitorManagement from './VisitorManagement'
 import { formatCPF, formatDateOnly, formatDateTime } from '../utils/formatters'
 import './VisitorsList.css'
 
 function VisitorsList({ onSelectVisitor }) {
   const { visitantes, historico } = useApp()
+  const [selectedVisitor, setSelectedVisitor] = useState(null)
   const [filters, setFilters] = useState({
     search: '',
     status: 'all'
@@ -49,6 +51,21 @@ function VisitorsList({ onSelectVisitor }) {
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }))
+  }
+
+  if (selectedVisitor) {
+    return (
+      <VisitorManagement
+        visitante={selectedVisitor}
+        onClose={() => setSelectedVisitor(null)}
+        onUpdate={(updated) => {
+          setSelectedVisitor(updated)
+          if (onSelectVisitor) {
+            onSelectVisitor(updated)
+          }
+        }}
+      />
+    )
   }
 
   return (
@@ -105,7 +122,13 @@ function VisitorsList({ onSelectVisitor }) {
               <div key={visitante.id} className="visitor-card">
                 {visitante.foto && (
                   <div className="visitor-photo">
-                    <img src={visitante.foto} alt={visitante.nome} />
+                    <img 
+                      src={visitante.foto.startsWith('http') ? visitante.foto : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000'}${visitante.foto}`} 
+                      alt={visitante.nome}
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                      }}
+                    />
                   </div>
                 )}
                 
@@ -150,8 +173,15 @@ function VisitorsList({ onSelectVisitor }) {
                   </div>
                 </div>
 
-                {onSelectVisitor && (
-                  <div className="visitor-actions">
+                <div className="visitor-actions">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setSelectedVisitor(visitante)}
+                  >
+                    Gerenciar
+                  </Button>
+                  {onSelectVisitor && (
                     <Button
                       variant="primary"
                       size="sm"
@@ -159,8 +189,8 @@ function VisitorsList({ onSelectVisitor }) {
                     >
                       Selecionar
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )
           })

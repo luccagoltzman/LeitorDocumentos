@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppProvider } from './context/AppContext'
 import Layout from './components/Layout'
+import Login from './components/Login'
 import DocumentReader from './components/DocumentReader'
+import FaceRecognition from './components/FaceRecognition'
 import FaceCapture from './components/FaceCapture'
 import VisitorRegistration from './components/VisitorRegistration'
 import EntryControl from './components/EntryControl'
@@ -12,14 +14,15 @@ import QRCodeGenerator from './components/QRCodeGenerator'
 import Dashboard from './components/Dashboard'
 import VisitorsList from './components/VisitorsList'
 import { useDocumentScanner } from './hooks/useDocumentScanner'
+import { authAPI } from './services/api'
 import './App.css'
 
-function AppContent() {
+function AppContent({ onLogout }) {
   const [currentView, setCurrentView] = useState('scanner')
   const [extractedData, setExtractedData] = useState(null)
   const [facePhoto, setFacePhoto] = useState(null)
   const [selectedPerson, setSelectedPerson] = useState(null)
-  const [registrationStep, setRegistrationStep] = useState('scan') // scan, face, register, entry
+  const [registrationStep, setRegistrationStep] = useState('scan') // scan, face, register, entry, faceRecognition
   
   const { scanDocument, isProcessing, extractedData: scannedData, reset } = useDocumentScanner()
 
@@ -38,7 +41,7 @@ function AppContent() {
     setRegistrationStep('register')
   }
 
-  const handleRegistrationComplete = (visitante) => {
+  const handleRegistrationComplete = async (visitante) => {
     setSelectedPerson(visitante)
     setRegistrationStep('entry')
   }
@@ -57,10 +60,30 @@ function AppContent() {
     setRegistrationStep('entry')
   }
 
+  const handleFaceRecognized = async (data) => {
+    const { visitante, sala, foto } = data
+    const visitanteComSala = { ...visitante, sala, foto }
+    setSelectedPerson(visitanteComSala)
+    setRegistrationStep('entry')
+  }
+
+  const handleFaceNotRecognized = () => {
+    setRegistrationStep('scan')
+  }
+
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
         return <Dashboard />
+      
+      case 'faceRecognition':
+        return (
+          <FaceRecognition
+            onRecognized={handleFaceRecognized}
+            onNotRecognized={handleFaceNotRecognized}
+            onCancel={() => setCurrentView('scanner')}
+          />
+        )
       
       case 'visitors':
         return <VisitorsList onSelectVisitor={handlePersonSelect} />
@@ -79,6 +102,19 @@ function AppContent() {
       
       case 'scanner':
       default:
+        // Fluxo de reconhecimento facial (para visitantes já cadastrados)
+        if (registrationStep === 'faceRecognition') {
+          return (
+            <FaceRecognition
+              onRecognized={handleFaceRecognized}
+              onNotRecognized={handleFaceNotRecognized}
+              onCancel={() => {
+                setRegistrationStep('scan')
+              }}
+            />
+          )
+        }
+        
         if (registrationStep === 'face' && extractedData) {
           return (
             <FaceCapture
@@ -124,16 +160,55 @@ function AppContent() {
   }
 
   return (
-    <Layout currentView={currentView} onViewChange={setCurrentView}>
+    <Layout 
+      currentView={currentView} 
+      onViewChange={setCurrentView}
+      onLogout={onLogout}
+    >
       {renderView()}
     </Layout>
   )
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('auth_token')
+  })
+
+  useEffect(() => {
+    // Verificar autenticação ao montar
+    const token = localStorage.getItem('auth_token')
+    setIsAuthenticated(!!token)
+
+    // Ouvir evento de não autorizado
+    const handleUnauthorized = () => {
+      setIsAuthenticated(false)
+    }
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized)
+
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized)
+    }
+  }, [])
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true)
+  }
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsAuthenticated(false)
+  }
+
+  // Se não estiver autenticado, mostrar tela de login
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={handleLoginSuccess} />
+  }
+
   return (
     <AppProvider>
-      <AppContent />
+      <AppContent onLogout={handleLogout} />
     </AppProvider>
   )
 }

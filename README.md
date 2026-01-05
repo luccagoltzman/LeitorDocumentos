@@ -50,8 +50,10 @@ npm run dev
 
 - **React 18**: Biblioteca JavaScript para construção de interfaces
 - **Vite**: Build tool moderna e rápida
-- **Tesseract.js**: Biblioteca JavaScript para OCR
+- **Tesseract.js**: Biblioteca JavaScript para OCR (processamento local)
 - **React Webcam**: Componente React para captura de vídeo/câmera
+- **face-api.js**: Biblioteca para reconhecimento facial
+- **Backend API**: Integração com API REST para persistência de dados
 
 ## 📝 Notas
 

@@ -12,6 +12,8 @@ export const useDocumentScanner = () => {
     setExtractedData(null)
 
     try {
+      // Usar OCR local (Tesseract.js) enquanto o backend não implementa OCR
+      // Quando o backend implementar, podemos alternar para usar a API
       const data = await extractDocumentData(imageSrc)
       setExtractedData(data)
       return data

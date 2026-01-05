@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
+import { visitantesAPI } from '../services/api'
 import Card from './ui/Card'
 import Button from './ui/Button'
 import Badge from './ui/Badge'
@@ -13,18 +14,23 @@ function VisitorRegistration({ extractedData, onComplete, onCancel }) {
   const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
-    if (extractedData?.cpf) {
-      // Verificar se pessoa já existe
-      const pessoa = buscarPorCPF(extractedData.cpf)
-      if (pessoa) {
-        setExistingPerson(pessoa)
-      }
+    const checkData = async () => {
+      if (extractedData?.cpf) {
+        // Verificar se pessoa já existe
+        const pessoa = buscarPorCPF(extractedData.cpf)
+        if (pessoa) {
+          setExistingPerson(pessoa)
+        }
 
-      // Verificar blacklist
-      if (verificarBlacklist(extractedData.cpf)) {
-        setIsBlacklisted(true)
+        // Verificar blacklist
+        const naBlacklist = await verificarBlacklist(extractedData.cpf)
+        if (naBlacklist) {
+          setIsBlacklisted(true)
+        }
       }
     }
+    
+    checkData()
   }, [extractedData, buscarPorCPF, verificarBlacklist])
 
   const validateData = () => {
@@ -57,15 +63,75 @@ function VisitorRegistration({ extractedData, onComplete, onCancel }) {
         nome: extractedData.nome,
         cpf: cleanCPF(extractedData.cpf),
         dataNascimento: extractedData.dataNascimento || null,
-        tipo: 'visita',
-        foto: extractedData?.foto || null // Foto facial capturada
+        tipo: 'visita'
       }
 
-      const novoVisitante = adicionarVisitante(visitante)
-      onComplete?.(novoVisitante)
+      try {
+        const novoVisitante = await adicionarVisitante(visitante, extractedData?.foto || null)
+        
+        if (novoVisitante) {
+          onComplete?.(novoVisitante)
+        }
+      } catch (createError) {
+        // Se o erro foi tratado internamente (fallback para criar novo), não mostrar erro
+        // O sistema já tentou criar um novo cadastro automaticamente
+        if (createError.status === 500 || createError.status === 404) {
+          console.log('Erro tratado internamente, sistema tentou criar novo cadastro')
+          // Tentar buscar o visitante criado
+          try {
+            const cpfLimpo = visitante.cpf.replace(/\D/g, '')
+            const buscaResponse = await visitantesAPI.buscarPorCPF(cpfLimpo)
+            if (buscaResponse.data) {
+              onComplete?.(buscaResponse.data)
+              return
+            }
+          } catch (searchError) {
+            console.error('Erro ao buscar visitante após fallback:', searchError)
+          }
+        }
+        throw createError
+      }
     } catch (error) {
       console.error('Erro ao cadastrar visitante:', error)
-      alert('Erro ao cadastrar visitante. Tente novamente.')
+      
+      // Se o erro foi 500 ou 404, o sistema já tentou criar um novo visitante como fallback
+      // Tentar buscar o visitante que pode ter sido criado
+      if (error.status === 500 || error.status === 404) {
+        try {
+          const cpfLimpo = visitante.cpf.replace(/\D/g, '')
+          const buscaResponse = await visitantesAPI.buscarPorCPF(cpfLimpo)
+          if (buscaResponse.data) {
+            // Visitante foi criado pelo fallback, continuar normalmente
+            console.log('Visitante criado com sucesso pelo fallback')
+            onComplete?.(buscaResponse.data)
+            return
+          }
+        } catch (searchError) {
+          console.error('Erro ao buscar visitante após fallback:', searchError)
+        }
+      }
+      
+      // Mostrar mensagem de erro mais detalhada
+      let errorMessage = 'Erro ao cadastrar visitante. Tente novamente.'
+      
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.data?.error?.message) {
+        errorMessage = error.data.error.message
+      } else if (error.data?.message) {
+        errorMessage = error.data.message
+      }
+      
+      // Mensagens específicas para códigos de erro comuns
+      if (error.code === 'UNAUTHORIZED') {
+        errorMessage = 'Sessão expirada. Por favor, faça login novamente.'
+      } else if (error.status === 400) {
+        errorMessage = 'Dados inválidos. Verifique as informações e tente novamente.'
+      } else if (error.status === 500) {
+        errorMessage = 'Erro no servidor. Verifique os dados e tente novamente. Se o problema persistir, entre em contato com o suporte.'
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsProcessing(false)
     }
